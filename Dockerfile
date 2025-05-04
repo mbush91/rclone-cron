@@ -1,18 +1,35 @@
-# Use the rclone image as the base image.
-FROM rclone/rclone
+# Use Debian Bookworm Slim as base image
+FROM debian:bookworm-slim
 
-# Set default environment variables (optional defaults)
-ENV CRON_TIME="40 * * * *" \
-    LOCAL_BASE_DIR="/data" \
-    REMOTE_BASE_DIR="GDrive:Backups/Alfred"
+# Set environment variables to avoid prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy the backup script into the container.
+# Install required packages: curl for downloading rclone, cron for the cron job
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    cron \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install rclone
+RUN curl https://rclone.org/install.sh | bash
+
+# Create a directory for rclone configuration (optional, for storing rclone configs)
+RUN mkdir -p /root/.config/rclone
+
+# Copy the backup script into the container
 COPY backup.sh /usr/local/bin/backup.sh
+
+# Make sure the backup script is executable
 RUN chmod +x /usr/local/bin/backup.sh
 
-# Copy the entrypoint script.
+# Copy the entrypoint script into the container
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Make the entrypoint script executable
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Override the base image's entrypoint and use our entrypoint.
+# Set the entrypoint to the entrypoint.sh script
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

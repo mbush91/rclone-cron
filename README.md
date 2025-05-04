@@ -2,7 +2,7 @@
 
 ## Build
 
-`docker build -t rclone-cron .`
+`docker build -t rclone_cron .`
 
 ## Setup
 
@@ -10,7 +10,7 @@ Run `rclone config` to generate a rclone.conf file
 
 ## Running
 ```
-docker run --rm -d -e LOCAL_BASE_DIR="/data" -e REMOTE_BASE_DIR="GDrive:Backups/Alfred" -v ./config/:/config/rclone  -v ./test/:/data/test rclone-cron
+docker run --rm -d -e TZ="America/New_York" -e CRON_TIME="54 19 * * *" -e LOCAL_BASE_DIR="/data" -e REMOTE_BASE_DIR="GDrive:Backups/Test" -v ./config/:/config/rclone  -v ./test/:/data/test rclone_cron
 ```
 
 ## Compose Setup

@@ -11,6 +11,7 @@ RUN apt-get update && \
     cron \
     zip \
     unzip \
+    docker.io \
     && rm -rf /var/lib/apt/lists/*
 
 # Install rclone

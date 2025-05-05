@@ -1,5 +1,4 @@
-#!/bin/sh
-set -e
+#!/bin/bash
 
 echo "[$(date)] Starting backup from ${LOCAL_BASE_DIR} to ${REMOTE_BASE_DIR}"
 

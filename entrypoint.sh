@@ -1,16 +1,21 @@
-#!/bin/bash
+#!/bin/sh
+set -e
 
-# Check if CRON_TIME is set and if not, set it to a default value
-if [ -z "$CRON_TIME" ]; then
-    echo "CRON_TIME not set, using default 45 19 * * *"
-    CRON_TIME="45 19 * * *"
-fi
+# 1) Default schedule if none supplied
+: "${CRON_TIME:=45 19 * * *}"
+echo "Using cron schedule: ${CRON_TIME}"
 
-# Set the cron job dynamically
-echo "$CRON_TIME root /usr/local/bin/backup.sh" > /etc/cron.d/rclone-cron
+# 2) Write a /etc/cron.d file
+#    NOTE: in /etc/cron.d you need 6 fields: min hour dom mon dow user command
+cat <<EOF > /etc/cron.d/my-cron
+${CRON_TIME} root /usr/local/bin/backup.sh >> /proc/1/fd/1 2>&1
+EOF
 
-# Set proper permissions for the cron job file
-chmod 0644 /etc/cron.d/rclone-cron
+# 3) Correct permissions
+chmod 0644 /etc/cron.d/my-cron
 
-# Start cron in the foreground
-cron -f
+# 4) Ensure that we reload the cron tables (not strictly needed for fresh container)
+crontab /etc/cron.d/my-cron
+
+# 5) Run cron in the foreground so Docker stays alive
+exec cron -f

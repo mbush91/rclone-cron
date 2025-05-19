@@ -10,6 +10,7 @@ RUN apt-get update && \
     curl \
     cron \
     zip \
+    procps \
     unzip \
     docker.io \
     && rm -rf /var/lib/apt/lists/*

@@ -15,7 +15,15 @@ else
 fi
 
 # Run the rclone sync command; change 'sync' to 'copy' if needed.
-rclone sync "${LOCAL_BASE_DIR}" "${REMOTE_BASE_DIR}" --drive-use-trash=false
+echo "Running rclone sync from ${LOCAL_BASE_DIR} to ${REMOTE_BASE_DIR}"
+rclone sync "${LOCAL_BASE_DIR}" "${REMOTE_BASE_DIR}" --drive-use-trash=false -v --progress
+
+# Check if the rclone command was successful
+if [ $? -ne 0 ]; then
+    echo "Rclone sync failed."
+else
+    echo "Rclone sync completed successfully."
+fi
 
 # Restart containers passed in by env variables (CONTAINERS_TO_PAUSE)
 if [ -n "$CONTAINERS_TO_PAUSE" ]; then

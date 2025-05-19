@@ -5,17 +5,19 @@ set -e
 : "${CRON_TIME:=45 19 * * *}"
 echo "Using cron schedule: ${CRON_TIME}"
 
-# 2) Write a /etc/cron.d file
-#    NOTE: in /etc/cron.d you need 6 fields: min hour dom mon dow user command
+# 2) Export environment variables for cron jobs
+printenv | grep -v "no_proxy" > /etc/environment
+
+# 3) Write a /etc/cron.d file (correct for /etc/cron.d to include 'root')
 cat <<EOF > /etc/cron.d/my-cron
-${CRON_TIME} root /usr/local/bin/backup.sh >> /proc/1/fd/1 2>&1
+${CRON_TIME} root . /etc/environment; /usr/local/bin/backup.sh >> /proc/1/fd/1 2>&1
 EOF
 
-# 3) Correct permissions
+# 4) Correct permissions
 chmod 0644 /etc/cron.d/my-cron
 
-# 4) Ensure that we reload the cron tables (not strictly needed for fresh container)
-crontab /etc/cron.d/my-cron
+# 🚫 REMOVE THIS — Don't load /etc/cron.d with crontab; cron automatically loads it
+# crontab /etc/cron.d/my-cron
 
 # 5) Run cron in the foreground so Docker stays alive
 exec cron -f
